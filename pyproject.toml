@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autonomous-agent-system"
+version = "1.0.0"
+description = "自主Agent系统：复杂任务拆解、长链推理、多智能体协同与闭环校验"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+authors = [{name = "Your Name", email = "your.email@example.com"}]
+keywords = ["agent", "ai", "orchestration", "multi-agent", "reasoning", "automation"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/autonomous-agent-system"
+Repository = "https://github.com/yourusername/autonomous-agent-system.git"
+Issues = "https://github.com/yourusername/autonomous-agent-system/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
