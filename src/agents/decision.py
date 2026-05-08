@@ -337,4 +337,73 @@ class DecisionAgent(BaseAgent):
                     })
         
         # Sort by priority
-        priority
+        priority_order = {"HIGH": 0, "MEDIUM": 1, "LOW": 2}
+        actions.sort(key=lambda x: priority_order.get(x["priority"], 3))
+        
+        return actions
+
+    def _extract_assumptions(self, results: List[Dict[str, Any]]) -> List[str]:
+        """Extract and deduplicate assumptions"""
+        assumptions = []
+        
+        for r in results:
+            result_data = r.get("result", {})
+            if isinstance(result_data, dict):
+                assumptions.extend(result_data.get("assumptions", []))
+        
+        # Deduplicate
+        seen = set()
+        unique = [a for a in assumptions if not (a in seen or seen.add(a))]
+        
+        return unique if unique else ["Market environment stable", "Data sources reliable"]
+
+    def _calculate_quality(self, decision: Dict[str, Any]) -> float:
+        """Calculate overall decision quality score"""
+        factors = [
+            decision["confidence"]["overall"] * 0.3,
+            (1.0 if decision["risk_assessment"]["level"] != "HIGH" else 0.5) * 0.25,
+            (len(decision["alternative_plans"]) / 3) * 0.2,
+            (1.0 if decision["action_items"] else 0.3) * 0.15,
+            min(decision["confidence"]["sample_size"] / 10, 1.0) * 0.1,
+        ]
+        return min(sum(factors), 1.0)
+
+    def _generate_mitigations(self, factors: List[Dict[str, Any]]) -> List[str]:
+        """Generate risk mitigation suggestions"""
+        mitigations = []
+        
+        for f in factors:
+            factor_type = f.get("type", "")
+            if factor_type == "LOW_CONFIDENCE":
+                mitigations.append(f"Supplement data collection for '{f['source']}'")
+            elif factor_type == "VALIDATION_FAILURE":
+                mitigations.append(f"Re-execute failed validation tasks, check parameters")
+            elif factor_type == "HIGH_RISK_CONCLUSION":
+                mitigations.append(f"Develop contingency plan for '{f['source']}'")
+            elif factor_type == "TASK_FAILURE":
+                mitigations.append(f"Investigate root cause of task failures ({f.get('failed_count', 1)} tasks)")
+        
+        return mitigations if mitigations else ["Continue monitoring key metrics"]
+
+    def _create_fallback_decision(self, context: AgentContext) -> Dict[str, Any]:
+        """Create fallback decision when no sub-results available"""
+        return {
+            "decision_id": f"DEC-{uuid.uuid4().hex[:8].upper()}",
+            "recommendation": "Insufficient data for decision. Please ensure tasks are executed successfully.",
+            "primary_plan": {"name": "Primary Plan", "actions": [], "timeline": "TBD"},
+            "alternative_plans": [],
+            "risk_assessment": {"level": "HIGH", "score": 2.0, "factors": [], "mitigation_suggestions": ["Gather more data"]},
+            "confidence": {"overall": 0.3, "min": 0.3, "max": 0.3, "variance": 0, "sample_size": 0},
+            "impact_assessment": {
+                "financial": {"level": "LOW"},
+                "operational": {"level": "LOW"},
+                "strategic": {"level": "LOW"},
+                "reputational": {"level": "LOW"},
+            },
+            "action_items": [],
+            "key_assumptions": ["Data collection in progress"],
+            "decision_trace": {"input_tasks": 0, "data_sources": [], "rules_applied": len(context.business_rules)},
+            "timestamp": time.time(),
+            "version": "2.0",
+            "quality_score": 0.3,
+                          }
