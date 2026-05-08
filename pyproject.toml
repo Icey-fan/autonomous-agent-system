@@ -4,24 +4,62 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "autonomous-agent-system"
-version = "1.0.0"
+version = "2.0.0"
 description = "自主Agent系统：复杂任务拆解、长链推理、多智能体协同与闭环校验"
 readme = "README.md"
 license = {text = "MIT"}
-requires-python = ">=3.8"
-authors = [{name = "Your Name", email = "your.email@example.com"}]
+requires-python = ">=3.10"
+authors = [{name = "Icey-fan", email = "icey.fan@example.com"}]
 keywords = ["agent", "ai", "orchestration", "multi-agent", "reasoning", "automation"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "openai>=1.0.0",
+    "aiohttp>=3.9.0",
+    "pydantic>=2.0.0",
+    "tenacity>=8.0.0",
+    "structlog>=24.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/autonomous-agent-system"
-Repository = "https://github.com/yourusername/autonomous-agent-system.git"
-Issues = "https://github.com/yourusername/autonomous-agent-system/issues"
+Homepage = "https://github.com/Icey-fan/autonomous-agent-system"
+Repository = "https://github.com/Icey-fan/autonomous-agent-system.git"
+Issues = "https://github.com/Icey-fan/autonomous-agent-system/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
