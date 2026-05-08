@@ -1,74 +1,91 @@
 #!/usr/bin/env python3
 """
-Autonomous Agent System - 演示脚本
+Autonomous Agent System - Demo Script (Fixed)
 """
 
+import asyncio
+import json
 import sys
 import os
+
+# Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-import json
 from agents import AgentOrchestrator
 
 
-def print_banner(text: str):
-    print(f"\n{'='*70}\n  {text}\n{'='*70}\n")
+def print_banner(text: str) -> None:
+    print(f"\n{'='*70}\n {text}\n{'='*70}\n")
 
 
-def print_json(data: dict, title: str = ""):
+def print_json(data: dict, title: str = "") -> None:
     if title:
         print(f"\n📋 {title}:")
     print(json.dumps(data, indent=2, ensure_ascii=False, default=str))
 
 
-def demo_churn_analysis():
-    print_banner("场景一：用户流失风险分析与召回策略")
+async def demo_churn_analysis():
+    print_banner("Scenario 1: User Churn Risk Analysis & Recall Strategy")
     orchestrator = AgentOrchestrator(max_workers=4)
 
     business_rules = [
-        {"name": "高风险预警", "type": "hard", "keywords": ["流失", "churn"], "condition": "critical"},
-        {"name": "隐私合规", "type": "hard", "keywords": ["用户", "隐私"], "condition": "personal_data"},
-        {"name": "成本控制", "type": "soft", "keywords": ["预算", "成本"], "threshold": 100000}
+        {"name": "High Risk Alert", "type": "hard", "keywords": ["churn", "流失"], "condition": "critical"},
+        {"name": "Privacy Compliance", "type": "hard", "keywords": ["user", "用户", "privacy"], "condition": "personal_data"},
+        {"name": "Cost Control", "type": "soft", "keywords": ["budget", "成本"], "threshold": 100000},
     ]
 
-    result = orchestrator.process_task(
-        "分析当前用户流失风险并制定召回策略，要求考虑成本控制和数据隐私合规",
+    result = await orchestrator.process_task(
+        "Analyze current user churn risk and develop recall strategy, considering cost control and data privacy compliance",
         business_rules=business_rules,
-        metadata={"project": "user_retention_q2", "priority": "high"}
+        metadata={"project": "user_retention_q2", "priority": "high"},
     )
 
-    print_json(result["execution_summary"], "执行摘要")
-    print_json(result["final_decision"]["risk_assessment"], "风险评估")
-    print_json(result["final_decision"]["primary_plan"], "主方案")
-    orchestrator.shutdown()
+    print_json(result.get("execution_summary"), "Execution Summary")
+    if "final_decision" in result:
+        print_json(result["final_decision"].get("risk_assessment"), "Risk Assessment")
+        print_json(result["final_decision"].get("primary_plan"), "Primary Plan")
+    
+    await orchestrator.shutdown()
     return result
 
 
-def demo_market_entry():
-    print_banner("场景二：东南亚电商市场进入可行性分析")
+async def demo_market_entry():
+    print_banner("Scenario 2: Southeast Asia E-commerce Market Entry Feasibility")
     orchestrator = AgentOrchestrator(max_workers=5)
 
     business_rules = [
-        {"name": "市场准入合规", "type": "hard", "keywords": ["合规", "license"], "condition": "non_compliant"},
-        {"name": "投资回报率", "type": "soft", "keywords": ["ROI", "回报"], "threshold": 0.15}
+        {"name": "Market Access Compliance", "type": "hard", "keywords": ["compliance", "合规", "license"], "condition": "non_compliant"},
+        {"name": "ROI Threshold", "type": "soft", "keywords": ["ROI", "return"], "threshold": 0.15},
     ]
 
-    result = orchestrator.process_task(
-        "评估进入东南亚电商市场的可行性，包括市场规模、竞争格局、合规要求和盈利预测",
+    result = await orchestrator.process_task(
+        "Evaluate feasibility of entering Southeast Asia e-commerce market, including market size, competition, compliance requirements, and profit forecast",
         business_rules=business_rules,
-        metadata={"project": "market_expansion_2024", "region": "SEA"}
+        metadata={"project": "market_expansion_2024", "region": "SEA"},
     )
 
-    print_json(result["execution_summary"], "执行摘要")
-    print_json(result["final_decision"]["confidence"], "置信度分析")
-    print_json(result["final_decision"]["impact_assessment"], "影响评估")
-    orchestrator.shutdown()
+    print_json(result.get("execution_summary"), "Execution Summary")
+    if "final_decision" in result:
+        print_json(result["final_decision"].get("confidence"), "Confidence Analysis")
+        print_json(result["final_decision"].get("impact_assessment"), "Impact Assessment")
+    
+    await orchestrator.shutdown()
     return result
 
 
+async def main():
+    print_banner("Autonomous Agent System v2.0 - Demo")
+    
+    try:
+        await demo_churn_analysis()
+        await demo_market_entry()
+    except Exception as e:
+        print(f"Demo error: {e}")
+        raise
+    
+    print_banner("Demo Complete")
+    print("✅ Demonstrated: Task decomposition, multi-agent collaboration, long-chain reasoning, closed-loop validation, decision output")
+
+
 if __name__ == "__main__":
-    print_banner("Autonomous Agent System - 自主智能体系统演示")
-    demo_churn_analysis()
-    demo_market_entry()
-    print_banner("演示完成")
-    print("✅ 展示了：任务拆解、多智能体协同、长链推理、闭环校验、决策输出")
+    asyncio.run(main())
